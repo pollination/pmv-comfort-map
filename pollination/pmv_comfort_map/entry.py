@@ -17,10 +17,15 @@ from pollination.path.copy import CopyMultiple
 # input/output alias
 from pollination.alias.inputs.model import hbjson_model_input
 from pollination.alias.inputs.ddy import ddy_input
-from pollination.alias.inputs.data import value_or_data
+from pollination.alias.inputs.comfort import air_speed_input, met_rate_input, \
+    clo_value_input, pmv_comfort_par_input, solar_body_par_indoor_input
 from pollination.alias.inputs.north import north_input
 from pollination.alias.inputs.bool_options import write_set_map_input
-from pollination.alias.outputs.comfort import comfort_percent_output
+from pollination.alias.inputs.runperiod import run_period_input
+from pollination.alias.inputs.radiancepar import rad_par_annual_input
+from pollination.alias.inputs.grid import sensor_count_input, grid_filter_input
+from pollination.alias.outputs.comfort import tcp_output, hsp_output, csp_output, \
+    thermal_condition_output, operative_or_set_output, pmv_output
 
 
 @dataclass
@@ -56,13 +61,13 @@ class PMVComfortMapEntryPoint(DAG):
     run_period = Inputs.str(
         description='An AnalysisPeriod string to set the start and end dates of '
         'the simulation (eg. "6/21 to 9/21 between 0 and 23 @1"). If None, '
-        'the simulation will be annual.', default=''
+        'the simulation will be annual.', default='', alias=run_period_input
     )
 
     sensor_count = Inputs.int(
         default=200,
         description='The maximum number of grid points per parallel execution.',
-        spec={'type': 'integer', 'minimum': 1}
+        spec={'type': 'integer', 'minimum': 1}, alias=sensor_count_input
     )
 
     write_set_map = Inputs.str(
@@ -80,35 +85,38 @@ class PMVComfortMapEntryPoint(DAG):
         description='A single number for air speed in m/s or a string of a JSON array '
         'with numbers that align with the result-sql reporting period. This '
         'will be used for all indoor comfort evaluation.', default='0.1',
-        alias=value_or_data
+        alias=air_speed_input
     )
 
     met_rate = Inputs.str(
         description='A single number for metabolic rate in met or a string of a '
         'JSON array with numbers that align with the result-sql reporting period.',
-        default='1.1', alias=value_or_data
+        default='1.1', alias=met_rate_input
     )
 
     clo_value = Inputs.str(
         description='A single number for clothing level in clo or a string of a JSON '
         'array with numbers that align with the result-sql reporting period.',
-        default='0.7', alias=value_or_data
+        default='0.7', alias=clo_value_input
     )
 
     solarcal_parameters = Inputs.str(
         description='A SolarCalParameter string to customize the assumptions of '
         'the SolarCal model.', default='--posture seated --sharp 135 '
-        '--absorptivity 0.7 --emissivity 0.95'
+        '--absorptivity 0.7 --emissivity 0.95',
+        alias=solar_body_par_indoor_input
     )
 
     comfort_parameters = Inputs.str(
         description='An PMVParameter string to customize the assumptions of '
-        'the PMV comfort model.', default='--ppd-threshold 10'
+        'the PMV comfort model.', default='--ppd-threshold 10',
+        alias=pmv_comfort_par_input
     )
 
     radiance_parameters = Inputs.str(
         description='Radiance parameters for ray tracing.',
-        default='-ab 2 -ad 5000 -lw 2e-05'
+        default='-ab 2 -ad 5000 -lw 2e-05',
+        alias=rad_par_annual_input
     )
 
     # tasks
@@ -304,39 +312,40 @@ class PMVComfortMapEntryPoint(DAG):
         source='results/temperature', description='A folder containing CSV maps of '
         'Operative Temperature for each sensor grid. Alternatively, if the '
         'write-set-map option is used, the CSV maps here will contain Standard '
-        'Effective Temperature (SET). Values are in Celsius.'
+        'Effective Temperature (SET). Values are in Celsius.',
+        alias=operative_or_set_output
     )
 
     condition = Outputs.folder(
         source='results/condition', description='A folder containing CSV maps of '
         'comfort conditions for each sensor grid. -1 indicates unacceptably cold '
         'conditions. +1 indicates unacceptably hot conditions. 0 indicates neutral '
-        '(comfortable) conditions.'
+        '(comfortable) conditions.', alias=thermal_condition_output
     )
 
     pmv = Outputs.folder(
         source='results/condition_intensity', description='A folder containing CSV maps '
         'of the Predicted Mean Vote (PMV) for each sensor grid. This can be used '
         'to understand not just whether conditions are acceptable but how '
-        'uncomfortably hot or cold they are.'
+        'uncomfortably hot or cold they are.', alias=pmv_output
     )
 
     tcp = Outputs.folder(
         source='metrics/TCP', description='A folder containing CSV values for Thermal '
         'Comfort Percent (TCP). TCP is the percentage of occupied time where '
-        'thermal conditions are acceptable/comfortable.', alias=comfort_percent_output
+        'thermal conditions are acceptable/comfortable.', alias=tcp_output
     )
 
     hsp = Outputs.folder(
         source='metrics/HSP', description='A folder containing CSV values for Heat '
         'Sensation Percent (HSP). HSP is the percentage of occupied time where '
         'thermal conditions are hotter than what is considered acceptable/comfortable.',
-        alias=comfort_percent_output
+        alias=hsp_output
     )
 
     csp = Outputs.folder(
         source='metrics/CSP', description='A folder containing CSV values for Cold '
         'Sensation Percent (CSP). CSP is the percentage of occupied time where '
         'thermal conditions are colder than what is considered acceptable/comfortable.',
-        alias=comfort_percent_output
+        alias=csp_output
     )
