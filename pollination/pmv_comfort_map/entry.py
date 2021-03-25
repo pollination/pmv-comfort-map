@@ -29,7 +29,7 @@ from pollination.alias.outputs.comfort import tcp_output, hsp_output, csp_output
 
 
 @dataclass
-class PMVComfortMapEntryPoint(DAG):
+class PmvComfortMapEntryPoint(DAG):
     """PMV comfort map entry point."""
 
     # inputs
