@@ -1,6 +1,6 @@
-from .entry import PMVComfortMapEntryPoint
+from .entry import PmvComfortMapEntryPoint
 
 
 __pollination__ = {
-    'entry_point': PMVComfortMapEntryPoint
+    'entry_point': PmvComfortMapEntryPoint
 }
