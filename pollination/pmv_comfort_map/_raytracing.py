@@ -56,6 +56,10 @@ class AnnualIrradianceRayTracing(DAG):
         description='Path to sky dome file.'
     )
 
+    bsdfs = Inputs.folder(
+        description='Folder containing any BSDF files needed for ray tracing.'
+    )
+
     @task(template=SplitGrid)
     def split_grid(self, sensor_count=sensor_count, input_grid=sensor_grid):
         return [
@@ -76,8 +80,9 @@ class AnnualIrradianceRayTracing(DAG):
         sensor_grid=split_grid._outputs.output_folder,
         conversion='0.265 0.670 0.065',
         output_format='a',  # make it ascii so we can expose the file as a separate output
-        scene_file=octree_file_with_suns
-            ):
+        scene_file=octree_file_with_suns,
+        bsdf_folder=bsdfs
+    ):
         return [
             {
                 'from': DaylightContribution()._outputs.result_file,
@@ -98,8 +103,9 @@ class AnnualIrradianceRayTracing(DAG):
         sky_matrix=sky_matrix_indirect, sky_dome=sky_dome,
         sensor_grid=split_grid._outputs.output_folder,
         conversion='0.265 0.670 0.065',  # divide by 179
-        scene_file=octree_file
-            ):
+        scene_file=octree_file,
+        bsdf_folder=bsdfs
+    ):
         return [
             {
                 'from': DaylightContribution()._outputs.result_file,

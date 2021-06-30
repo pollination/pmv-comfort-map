@@ -80,7 +80,14 @@ class AnnualIrradianceEntryPoint(DAG):
     def create_rad_folder(self, input_model=model, grid_filter=grid_filter):
         """Translate the input model to a radiance folder."""
         return [
-            {'from': CreateRadianceFolderGrid()._outputs.model_folder, 'to': 'model'},
+            {
+                'from': CreateRadianceFolderGrid()._outputs.model_folder,
+                'to': 'model'
+            },
+            {
+                'from': CreateRadianceFolderGrid()._outputs.bsdf_folder,
+                'to': 'model/bsdf'
+            },
             {
                 'from': CreateRadianceFolderGrid()._outputs.sensor_grids_file,
                 'to': 'results/direct/grids_info.json'
@@ -170,7 +177,7 @@ class AnnualIrradianceEntryPoint(DAG):
         ],
         loop=create_rad_folder._outputs.sensor_grids,
         sub_folder='initial_results/{{item.name}}',  # create a subfolder for each grid
-        sub_paths={'sensor_grid': 'grid/{{item.full_id}}.pts'}  # sub_path for sensor_grid arg
+        sub_paths={'sensor_grid': 'grid/{{item.full_id}}.pts'}  # sensor_grid sub_path
     )
     def annual_radiation_raytracing(
         self,
@@ -183,7 +190,8 @@ class AnnualIrradianceEntryPoint(DAG):
         sky_dome=create_sky_dome._outputs.sky_dome,
         sky_matrix_indirect=create_indirect_sky._outputs.sky_matrix,
         sunpath=generate_sunpath._outputs.sunpath,
-        sun_modifiers=generate_sunpath._outputs.sun_modifiers
+        sun_modifiers=generate_sunpath._outputs.sun_modifiers,
+        bsdfs=create_rad_folder._outputs.bsdf_folder
     ):
         pass
 
