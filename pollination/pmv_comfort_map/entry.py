@@ -14,7 +14,7 @@ from pollination.lbt_honeybee.edit import ModelModifiersFromConstructions
 from pollination.path.copy import CopyMultiple
 
 # input/output alias
-from pollination.alias.inputs.model import hbjson_model_input
+from pollination.alias.inputs.model import hbjson_model_grid_room_input
 from pollination.alias.inputs.ddy import ddy_input
 from pollination.alias.inputs.comfort import air_speed_input, met_rate_input, \
     clo_value_input, pmv_comfort_par_input, solar_body_par_indoor_input
@@ -37,7 +37,7 @@ class PmvComfortMapEntryPoint(DAG):
     model = Inputs.file(
         description='A Honeybee model in HBJSON file format.',
         extensions=['json', 'hbjson'],
-        alias=hbjson_model_input
+        alias=hbjson_model_grid_room_input
     )
 
     epw = Inputs.file(
