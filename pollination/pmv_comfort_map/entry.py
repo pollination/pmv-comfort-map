@@ -105,7 +105,7 @@ class PmvComfortMapEntryPoint(DAG):
 
     air_speed = Inputs.str(
         description='A single number for air speed in m/s or a string of a JSON array '
-        'with numbers that align with the result-sql reporting period. This '
+        'with numbers that align with run period. This '
         'will be used for all indoor comfort evaluation.', default='0.1',
         alias=air_speed_input
     )
