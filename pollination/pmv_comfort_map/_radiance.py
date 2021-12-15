@@ -41,8 +41,7 @@ class RadianceMappingEntryPoint(DAG):
     )
 
     grid_name = Inputs.str(
-        description='Sensor grid file name. This is useful to rename the final result '
-        'file to {grid_name}.res'
+        description='Sensor grid file name (used to name the final result files).'
     )
 
     sensor_grid = Inputs.file(
