@@ -74,22 +74,22 @@ class ComfortMappingEntryPoint(DAG):
         'the simulation will be annual.', default=''
     )
 
-    air_speed = Inputs.str(
-        description='A single number for air speed in m/s or a string of a JSON array '
-        'with numbers that align with the result-sql reporting period. This '
-        'will be used for all indoor comfort evaluation.', default='0.1'
+    air_speed = Inputs.file(
+        description='A CSV file containing a single number for air speed in m/s or '
+        'several rows of air speeds that align with the length of the run period.',
+        optional=True
     )
 
-    met_rate = Inputs.str(
-        description='A single number for metabolic rate in met or a string of a '
-        'JSON array with numbers that align with the result-sql reporting period.',
-        default='1.1'
+    met_rate = Inputs.file(
+        description='A CSV file containing a single number for metabolic rate in met '
+        'or several rows of met values that align with the length of the run period.',
+        optional=True
     )
 
-    clo_value = Inputs.str(
-        description='A single number for clothing level in clo or a string of a JSON '
-        'array with numbers that align with the result-sql reporting period.',
-        default='0.7'
+    clo_value = Inputs.file(
+        description='A CSV file containing a single number for clothing level in clo '
+        'or several rows of clo values that align with the length of the run period.',
+        optional=True
     )
 
     solarcal_parameters = Inputs.str(

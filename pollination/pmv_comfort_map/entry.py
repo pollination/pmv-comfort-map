@@ -103,23 +103,23 @@ class PmvComfortMapEntryPoint(DAG):
         spec={'type': 'string', 'enum': ['write-op-map', 'write-set-map']}
     )
 
-    air_speed = Inputs.str(
-        description='A single number for air speed in m/s or a string of a JSON array '
-        'with numbers that align with run period. This '
-        'will be used for all indoor comfort evaluation.', default='0.1',
-        alias=air_speed_input
+    air_speed = Inputs.file(
+        description='A CSV file containing a single number for air speed in m/s or '
+        'several rows of air speeds that align with the length of the run period. This '
+        'will be used for all indoor comfort evaluation.', extensions=['txt', 'csv'],
+        optional=True, alias=air_speed_input
     )
 
-    met_rate = Inputs.str(
-        description='A single number for metabolic rate in met or a string of a '
-        'JSON array with numbers that align with the result-sql reporting period.',
-        default='1.1', alias=met_rate_input
+    met_rate = Inputs.file(
+        description='A CSV file containing a single number for metabolic rate in met '
+        'or several rows of met values that align with the length of the run period.',
+        extensions=['txt', 'csv'], optional=True, alias=met_rate_input
     )
 
-    clo_value = Inputs.str(
-        description='A single number for clothing level in clo or a string of a JSON '
-        'array with numbers that align with the result-sql reporting period.',
-        default='0.7', alias=clo_value_input
+    clo_value = Inputs.file(
+        description='A CSV file containing a single number for clothing level in clo '
+        'or several rows of clo values that align with the length of the run period.',
+        extensions=['txt', 'csv'], optional=True, alias=clo_value_input
     )
 
     solarcal_parameters = Inputs.str(
