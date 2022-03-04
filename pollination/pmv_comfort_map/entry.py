@@ -6,13 +6,14 @@ from typing import Dict, List
 from pollination.ladybug.translate import EpwToWea
 from pollination.lbt_honeybee.edit import ModelModifiersFromConstructions
 
-from pollination.honeybee_energy.settings import SimParComfort
+from pollination.honeybee_energy.settings import SimParComfort, DynamicOutputs
 from pollination.honeybee_energy.simulate import SimulateModel
 from pollination.honeybee_energy.translate import ModelOccSchedules
 
 from pollination.honeybee_radiance.sun import CreateSunMatrix, ParseSunUpHours
 from pollination.honeybee_radiance.translate import CreateRadianceFolderGrid
-from pollination.honeybee_radiance.octree import CreateOctree, CreateOctreeWithSky
+from pollination.honeybee_radiance.octree import CreateOctree, CreateOctreeWithSky, \
+    CreateOctreeAbstractedGroups
 from pollination.honeybee_radiance.sky import CreateSkyDome, CreateSkyMatrix
 from pollination.honeybee_radiance.grid import SplitGridFolder, MergeFolderData
 from pollination.honeybee_radiance.viewfactor import ViewFactorModifiers
@@ -23,6 +24,7 @@ from pollination.path.copy import CopyMultiple
 # input/output alias
 from pollination.alias.inputs.model import hbjson_model_grid_room_input
 from pollination.alias.inputs.ddy import ddy_input
+from pollination.alias.inputs.simulation import additional_idf_input
 from pollination.alias.inputs.comfort import air_speed_input, met_rate_input, \
     clo_value_input, pmv_comfort_par_input, solar_body_par_indoor_input
 from pollination.alias.inputs.north import north_input
@@ -35,6 +37,7 @@ from pollination.alias.outputs.comfort import tcp_output, hsp_output, csp_output
 
 from ._radiance import RadianceMappingEntryPoint
 from ._comfort import ComfortMappingEntryPoint
+from ._dynamic import DynamicContributionEntryPoint
 
 
 @dataclass
@@ -71,6 +74,13 @@ class PmvComfortMapEntryPoint(DAG):
         description='An AnalysisPeriod string to set the start and end dates of '
         'the simulation (eg. "6/21 to 9/21 between 0 and 23 @1"). If None, '
         'the simulation will be annual.', default='', alias=run_period_input
+    )
+
+    additional_idf = Inputs.file(
+        description='An IDF file with text to be appended before simulation. This '
+        'input can be used to include EnergyPlus objects that are not '
+        'currently supported by honeybee.', extensions=['idf'],
+        optional=True, alias=additional_idf_input
     )
 
     cpu_count = Inputs.int(
@@ -151,10 +161,21 @@ class PmvComfortMapEntryPoint(DAG):
             }
         ]
 
-    @task(template=SimulateModel, needs=[create_sim_par])
+    @task(template=DynamicOutputs)
+    def dynamic_construction_outputs(
+        self, model=model, base_idf=additional_idf
+    ) -> List[Dict]:
+        return [
+            {
+                'from': DynamicOutputs()._outputs.dynamic_out_idf,
+                'to': 'energy/additional.idf'
+            }
+        ]
+
+    @task(template=SimulateModel, needs=[create_sim_par, dynamic_construction_outputs])
     def run_energy_simulation(
-        self, model=model, epw=epw,
-        sim_par=create_sim_par._outputs.sim_par_json
+        self, model=model, epw=epw, sim_par=create_sim_par._outputs.sim_par_json,
+        additional_idf=dynamic_construction_outputs._outputs.dynamic_out_idf
     ) -> List[Dict]:
         return [
             {'from': SimulateModel()._outputs.sql, 'to': 'energy/eplusout.sql'},
@@ -280,6 +301,10 @@ class PmvComfortMapEntryPoint(DAG):
             {
                 'from': CopyMultiple()._outputs.dst_5,
                 'to': 'metrics/CSP/grids_info.json'
+            },
+            {
+                'from': CopyMultiple()._outputs.dst_6,
+                'to': 'initial_results/conditions/_redist_info.json'
             }
         ]
 
@@ -302,11 +327,15 @@ class PmvComfortMapEntryPoint(DAG):
                 'to': 'initial_results/results/temperature/_redist_info.json'
             },
             {
+                'from': SplitGridFolder()._outputs.sensor_grids_file,
+                'to': 'radiance/grid/_split_info.json'
+            },
+            {
                 'from': SplitGridFolder()._outputs.sensor_grids,
                 'description': 'Sensor grids information.'
             }
         ]
-    
+
     @task(template=CopyMultiple, needs=[split_grid_folder])
     def copy_redist_info(self, src=split_grid_folder._outputs.dist_info):
         return [
@@ -329,6 +358,10 @@ class PmvComfortMapEntryPoint(DAG):
             {
                 'from': CopyMultiple()._outputs.dst_5,
                 'to': 'initial_results/metrics/CSP/_redist_info.json'
+            },
+            {
+                'from': CopyMultiple()._outputs.dst_6,
+                'to': 'initial_results/conditions/_redist_info.json'
             }
         ]
 
@@ -354,6 +387,26 @@ class PmvComfortMapEntryPoint(DAG):
             {
                 'from': CreateOctreeWithSky()._outputs.scene_file,
                 'to': 'radiance/shortwave/resources/scene_with_suns.oct'
+            }
+        ]
+
+    @task(
+        template=CreateOctreeAbstractedGroups,
+        needs=[generate_sunpath, create_rad_folder]
+    )
+    def create_dynamic_octrees(
+        self, model=create_rad_folder._outputs.model_folder,
+        sunpath=generate_sunpath._outputs.sunpath
+    ):
+        """Create a set of octrees for each dynamic window construction."""
+        return [
+            {
+                'from': CreateOctreeAbstractedGroups()._outputs.scene_folder,
+                'to': 'radiance/shortwave/resources/dynamic_groups'
+            },
+            {
+                'from': CreateOctreeAbstractedGroups()._outputs.scene_info,
+                'description': 'List of octrees to iterate over.'
             }
         ]
 
@@ -413,10 +466,44 @@ class PmvComfortMapEntryPoint(DAG):
         pass
 
     @task(
+        template=DynamicContributionEntryPoint,
+        needs=[
+            create_sky_dome, generate_sunpath, parse_sun_up_hours,
+            create_total_sky, create_direct_sky,
+            split_grid_folder, create_dynamic_octrees, run_energy_simulation
+        ],
+        loop=create_dynamic_octrees._outputs.scene_info,
+        sub_folder='radiance',
+        sub_paths={
+            'octree_file_spec': '{{item.identifier}}/{{item.spec}}',
+            'octree_file_diff': '{{item.identifier}}/{{item.diff}}',
+            'octree_file_with_suns': '{{item.identifier}}/{{item.sun}}'
+        }
+    )
+    def run_radiance_dynamic_contribution(
+        self,
+        radiance_parameters=radiance_parameters,
+        result_sql=run_energy_simulation._outputs.sql,
+        octree_file_spec=create_dynamic_octrees._outputs.scene_folder,
+        octree_file_diff=create_dynamic_octrees._outputs.scene_folder,
+        octree_file_with_suns=create_dynamic_octrees._outputs.scene_folder,
+        group_name='{{item.identifier}}',
+        sensor_grid_folder=split_grid_folder._outputs.output_folder,
+        sensor_grids=split_grid_folder._outputs.sensor_grids_file,
+        sky_dome=create_sky_dome._outputs.sky_dome,
+        sky_matrix=create_total_sky._outputs.sky_matrix,
+        sky_matrix_direct=create_direct_sky._outputs.sky_matrix,
+        sun_modifiers=generate_sunpath._outputs.sun_modifiers,
+        sun_up_hours=parse_sun_up_hours._outputs.sun_up_hours,
+    ) -> List[Dict]:
+        pass
+
+    @task(
         template=ComfortMappingEntryPoint,
         needs=[
             parse_sun_up_hours, create_view_factor_modifiers, create_model_occ_schedules,
-            run_energy_simulation, run_radiance_simulation, split_grid_folder
+            run_energy_simulation, run_radiance_simulation, split_grid_folder,
+            run_radiance_dynamic_contribution
         ],
         loop=split_grid_folder._outputs.sensor_grids,
         sub_folder='initial_results',
@@ -440,6 +527,7 @@ class PmvComfortMapEntryPoint(DAG):
         direct_irradiance='radiance/shortwave/results/direct',
         ref_irradiance='radiance/shortwave/results/reflected',
         sun_up_hours=parse_sun_up_hours._outputs.sun_up_hours,
+        contributions='radiance/shortwave/dynamic/final/{{item.full_id}}',
         occ_schedules=create_model_occ_schedules._outputs.occ_schedule_json,
         run_period=run_period,
         air_speed=air_speed,
@@ -537,9 +625,11 @@ class PmvComfortMapEntryPoint(DAG):
         ]
 
     # outputs
-    results = Outputs.folder(
-        source='results',
-        description='A folder containing all results.'
+    environmental_conditions = Outputs.folder(
+        source='initial_results/conditions',
+        description='A folder containing the environmental conditions that were input'
+        'to the thermal comfort model. This include the MRT, air temperature, longwave '
+        'MRT, shortwave MRT delta and relative humidity.'
     )
 
     temperature = Outputs.folder(
