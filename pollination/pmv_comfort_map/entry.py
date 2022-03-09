@@ -304,7 +304,7 @@ class PmvComfortMapEntryPoint(DAG):
             },
             {
                 'from': CopyMultiple()._outputs.dst_6,
-                'to': 'initial_results/conditions/_redist_info.json'
+                'to': 'initial_results/conditions/grids_info.json'
             }
         ]
 
