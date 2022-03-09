@@ -44,6 +44,11 @@ class RadianceContribEntryPoint(DAG):
         extensions=['pts']
     )
 
+    ref_sensor_grid = Inputs.file(
+        description='Reflected Sensor grid file.',
+        extensions=['pts']
+    )
+
     sensor_count = Inputs.int(
         description='Number of sensors in the input sensor grid.'
     )
@@ -64,10 +69,7 @@ class RadianceContribEntryPoint(DAG):
         description='A file with sun modifiers.'
     )
 
-    @task(
-        template=DaylightContribution,
-        sub_paths={'sensor_grid': '{{self.grid_name}}.pts'}
-        )
+    @task(template=DaylightContribution)
     def direct_sun_group(
         self,
         grid_name=grid_name,
@@ -76,7 +78,7 @@ class RadianceContribEntryPoint(DAG):
         fixed_radiance_parameters='-aa 0.0 -I -ab 0 -dc 1.0 -dt 0.0 -dj 0.0 -dr 0',
         sensor_count=sensor_count,
         modifiers=sun_modifiers,
-        sensor_grid='grids',
+        sensor_grid=sensor_grid,
         conversion='0.265 0.670 0.065',
         output_format='a',  # make it ascii so we expose the file as a separate output
         header='remove',  # remove header to make it process-able later
@@ -89,10 +91,7 @@ class RadianceContribEntryPoint(DAG):
             }
         ]
 
-    @task(
-        template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{self.grid_name}}.pts'}
-    )
+    @task(template=DaylightCoefficient)
     def direct_sky_group(
         self,
         grid_name=grid_name,
@@ -102,7 +101,7 @@ class RadianceContribEntryPoint(DAG):
         sensor_count=sensor_count,
         sky_matrix=sky_matrix_direct,
         sky_dome=sky_dome,
-        sensor_grid='grids',
+        sensor_grid=sensor_grid,
         conversion='0.265 0.670 0.065',  # divide by 179
         scene_file=octree_file_spec
     ):
@@ -113,10 +112,7 @@ class RadianceContribEntryPoint(DAG):
             }
         ]
 
-    @task(
-        template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{self.grid_name}}.pts'}
-    )
+    @task(template=DaylightCoefficient)
     def total_sky_spec_group(
         self,
         grid_name=grid_name,
@@ -126,7 +122,7 @@ class RadianceContribEntryPoint(DAG):
         sensor_count=sensor_count,
         sky_matrix=sky_matrix,
         sky_dome=sky_dome,
-        sensor_grid='grids',
+        sensor_grid=sensor_grid,
         conversion='0.265 0.670 0.065',  # divide by 179
         scene_file=octree_file_spec
     ):
@@ -152,10 +148,7 @@ class RadianceContribEntryPoint(DAG):
             }
         ]
 
-    @task(
-        template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{self.grid_name}}_ref.pts'}
-    )
+    @task(template=DaylightCoefficient)
     def ground_reflected_sky_spec_group(
         self,
         grid_name=grid_name,
@@ -165,7 +158,7 @@ class RadianceContribEntryPoint(DAG):
         sensor_count=sensor_count,
         sky_matrix=sky_matrix,
         sky_dome=sky_dome,
-        sensor_grid='grids',
+        sensor_grid=ref_sensor_grid,
         conversion='0.265 0.670 0.065',  # divide by 179
         output_format='a',  # make it ascii so we expose the file as a separate output
         header='remove',  # remove header to make it process-able later
@@ -178,10 +171,7 @@ class RadianceContribEntryPoint(DAG):
             }
         ]
 
-    @task(
-        template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{self.grid_name}}.pts'}
-    )
+    @task(template=DaylightCoefficient)
     def total_sky_diff_group(
         self,
         grid_name=grid_name,
@@ -191,7 +181,7 @@ class RadianceContribEntryPoint(DAG):
         sensor_count=sensor_count,
         sky_matrix=sky_matrix,
         sky_dome=sky_dome,
-        sensor_grid='grids',
+        sensor_grid=sensor_grid,
         conversion='0.265 0.670 0.065',  # divide by 179
         output_format='a',  # make it ascii so we expose the file as a separate output
         header='remove',  # remove header to make it process-able later
@@ -204,10 +194,7 @@ class RadianceContribEntryPoint(DAG):
             }
         ]
 
-    @task(
-        template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{self.grid_name}}_ref.pts'}
-    )
+    @task(template=DaylightCoefficient)
     def ground_reflected_sky_diff_group(
         self,
         grid_name=grid_name,
@@ -217,7 +204,7 @@ class RadianceContribEntryPoint(DAG):
         sensor_count=sensor_count,
         sky_matrix=sky_matrix,
         sky_dome=sky_dome,
-        sensor_grid='grids',
+        sensor_grid=ref_sensor_grid,
         conversion='0.265 0.670 0.065',  # divide by 179
         output_format='a',  # make it ascii so we expose the file as a separate output
         header='remove',  # remove header to make it process-able later
