@@ -33,7 +33,7 @@ from pollination.alias.inputs.runperiod import run_period_input
 from pollination.alias.inputs.radiancepar import rad_par_annual_input
 from pollination.alias.inputs.grid import min_sensor_count_input, cpu_count
 from pollination.alias.outputs.comfort import tcp_output, hsp_output, csp_output, \
-    thermal_condition_output, operative_or_set_output, pmv_output
+    thermal_condition_output, operative_or_set_output, pmv_output, env_conditions_output
 
 from ._radiance import RadianceMappingEntryPoint
 from ._comfort import ComfortMappingEntryPoint
@@ -627,9 +627,9 @@ class PmvComfortMapEntryPoint(DAG):
     # outputs
     environmental_conditions = Outputs.folder(
         source='initial_results/conditions',
-        description='A folder containing the environmental conditions that were input'
+        description='A folder containing the environmental conditions that were input '
         'to the thermal comfort model. This include the MRT, air temperature, longwave '
-        'MRT, shortwave MRT delta and relative humidity.'
+        'MRT, shortwave MRT delta and relative humidity.', alias=env_conditions_output
     )
 
     temperature = Outputs.folder(
