@@ -66,7 +66,7 @@ class RadianceContribEntryPoint(DAG):
 
     @task(
         template=DaylightContribution,
-        sub_paths={'sensor_grid': '{{grid_name}}.pts'}
+        sub_paths={'sensor_grid': '{{name}}.pts'}
         )
     def direct_sun_group(
         self,
@@ -91,7 +91,7 @@ class RadianceContribEntryPoint(DAG):
 
     @task(
         template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{grid_name}}.pts'}
+        sub_paths={'sensor_grid': '{{name}}.pts'}
     )
     def direct_sky_group(
         self,
@@ -115,7 +115,7 @@ class RadianceContribEntryPoint(DAG):
 
     @task(
         template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{grid_name}}.pts'}
+        sub_paths={'sensor_grid': '{{name}}.pts'}
     )
     def total_sky_spec_group(
         self,
@@ -154,7 +154,7 @@ class RadianceContribEntryPoint(DAG):
 
     @task(
         template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{grid_name}}_ref.pts'}
+        sub_paths={'sensor_grid': '{{name}}_ref.pts'}
     )
     def ground_reflected_sky_spec_group(
         self,
@@ -180,7 +180,7 @@ class RadianceContribEntryPoint(DAG):
 
     @task(
         template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{grid_name}}.pts'}
+        sub_paths={'sensor_grid': '{{name}}.pts'}
     )
     def total_sky_diff_group(
         self,
@@ -206,7 +206,7 @@ class RadianceContribEntryPoint(DAG):
 
     @task(
         template=DaylightCoefficient,
-        sub_paths={'sensor_grid': '{{grid_name}}_ref.pts'}
+        sub_paths={'sensor_grid': '{{name}}_ref.pts'}
     )
     def ground_reflected_sky_diff_group(
         self,
