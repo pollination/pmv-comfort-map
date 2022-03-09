@@ -86,7 +86,10 @@ class DynamicContributionEntryPoint(DAG):
         needs=[read_grids],
         loop=read_grids._outputs.data,
         sub_folder='shortwave',
-        sub_paths={'sensor_grid': '{{item.full_id}}.pts'}
+        sub_paths={
+            'sensor_grid': '{{item.full_id}}.pts',
+            'ref_sensor_grid': '{{item.full_id}}_ref.pts',
+        }
     )
     def run_radiance_window_contrib(
         self,
@@ -97,6 +100,7 @@ class DynamicContributionEntryPoint(DAG):
         group_name=group_name,
         grid_name='{{item.full_id}}',
         sensor_grid=sensor_grid_folder,
+        ref_sensor_grid=sensor_grid_folder,
         sensor_count='{{item.count}}',
         sky_dome=sky_dome,
         sky_matrix=sky_matrix,
