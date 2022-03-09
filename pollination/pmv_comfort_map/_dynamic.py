@@ -125,11 +125,11 @@ class DynamicContributionEntryPoint(DAG):
     def run_dynamic_behavior_contrib(
         self,
         result_sql=result_sql,
-        direct_specular='shortwave/dynamic/initial/{{self.aperture_id}}/direct_spec',
-        indirect_specular='shortwave/dynamic/initial/{{self.aperture_id}}/indirect_spec',
-        ref_specular='shortwave/dynamic/initial/{{self.aperture_id}}/reflected_spec',
-        indirect_diffuse='shortwave/dynamic/initial/{{self.aperture_id}}/total_diff',
-        ref_diffuse='shortwave/dynamic/initial/{{self.aperture_id}}/reflected_diff',
+        direct_specular='shortwave/dynamic/initial/{{group_name}}/direct_spec',
+        indirect_specular='shortwave/dynamic/initial/{{group_name}}/indirect_spec',
+        ref_specular='shortwave/dynamic/initial/{{group_name}}/reflected_spec',
+        indirect_diffuse='shortwave/dynamic/initial/{{group_name}}/total_diff',
+        ref_diffuse='shortwave/dynamic/initial/{{group_name}}/reflected_diff',
         sun_up_hours=sun_up_hours,
         aperture_id=group_name,
         grid_name='{{item.full_id}}'
