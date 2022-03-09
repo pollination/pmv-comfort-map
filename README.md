@@ -7,6 +7,8 @@ a Honeybee model and EPW. This recipe can also (optionally) compute Standard
 Effective Temperature (SET). Raw results are written into a `results/` folder and
 include CSV matrices of hourly temperatures, thermal conditions and PMV. Processed
 metrics of Thermal Comfort Percent (TCP) can be found in the `metrics/` folder.
+Input conditions to the comfort model are written to an `initial_results/conditions`
+folder.
 
 ## Methods
 
