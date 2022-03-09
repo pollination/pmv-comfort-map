@@ -68,12 +68,11 @@ class DynamicBehaviorEntryPoint(DAG):
         ref_diffuse=ref_diffuse,
         sun_up_hours=sun_up_hours,
         aperture_id=aperture_id,
-        aperture_name=aperture_id,
         name=grid_name
     ) -> List[Dict]:
         return [
             {
                 'from': IrradianceContribMap()._outputs.result_folder,
-                'to': 'dynamic/final/{{self.name}}/{{self.aperture_name}}'
+                'to': 'dynamic/final/{{self.name}}/{{self.aperture_id}}'
             }
         ]
