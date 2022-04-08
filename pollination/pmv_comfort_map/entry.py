@@ -612,7 +612,7 @@ class PmvComfortMapEntryPoint(DAG):
         return [
             {
                 'from': MapResultInfo()._outputs.viz_config_file,
-                'to': 'metric/config.json'
+                'to': 'metrics/config.json'
             },
             {
                 'from': MapResultInfo()._outputs.temperature_info,
