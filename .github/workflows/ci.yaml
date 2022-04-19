@@ -123,7 +123,7 @@ jobs:
             git rebase origin/production
       - name: install python viz dependencies
         run: pip install .[viz]
-       - name: deploy viz to production
+      - name: deploy viz to production
         env:
           TAG: ${{ steps.get-context.outputs.tag }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
