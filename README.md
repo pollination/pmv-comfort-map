@@ -2,8 +2,8 @@
 
 PMV thermal comfort map recipe for Pollination.
 
-Compute spatially-resolved operative temperature and PMV thermal comfort from
-a Honeybee model and EPW. This recipe can also (optionally) compute Standard
+Compute spatially-resolved PMV thermal comfort from a Honeybee model and EPW.
+This recipe also computes operative temperature or (optionally) Standard
 Effective Temperature (SET). Raw results are written into a `results/` folder and
 include CSV matrices of hourly temperatures, thermal conditions and PMV. Processed
 metrics of Thermal Comfort Percent (TCP) can be found in the `metrics/` folder.
