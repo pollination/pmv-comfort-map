@@ -61,7 +61,7 @@ class DynamicShadeContribEntryPoint(DAG):
     )
 
     @task(template=ReadJSONList)
-    def read_grids(self, src=sensor_grids) -> List[Dict]:
+    def read_grids_for_shade(self, src=sensor_grids) -> List[Dict]:
         return [
             {
                 'from': ReadJSONList()._outputs.data,
@@ -71,8 +71,8 @@ class DynamicShadeContribEntryPoint(DAG):
 
     @task(
         template=ShadeContribEntryPoint,
-        needs=[read_grids],
-        loop=read_grids._outputs.data,
+        needs=[read_grids_for_shade],
+        loop=read_grids_for_shade._outputs.data,
         sub_folder='shortwave',
         sub_paths={
             'sensor_grid': '{{item.full_id}}.pts',
@@ -91,7 +91,7 @@ class DynamicShadeContribEntryPoint(DAG):
         sensor_count='{{item.count}}',
         sky_dome=sky_dome,
         sky_matrix=sky_matrix,
-        sky_matrix_direct=sky_matrix,
+        sky_matrix_direct=sky_matrix_direct,
         sun_modifiers=sun_modifiers,
         sun_up_hours=sun_up_hours
     ) -> List[Dict]:
