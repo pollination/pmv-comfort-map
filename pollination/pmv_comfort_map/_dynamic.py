@@ -103,7 +103,7 @@ class DynamicContributionEntryPoint(DAG):
         sensor_count='{{item.count}}',
         sky_dome=sky_dome,
         sky_matrix=sky_matrix,
-        sky_matrix_direct=sky_matrix,
+        sky_matrix_direct=sky_matrix_direct,
         sun_modifiers=sun_modifiers,
         result_sql=result_sql,
         sun_up_hours=sun_up_hours

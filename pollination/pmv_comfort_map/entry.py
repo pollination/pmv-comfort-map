@@ -416,11 +416,11 @@ class PmvComfortMapEntryPoint(DAG):
         template=CreateOctreeShadeTransmittance,
         needs=[generate_sunpath, create_rad_folder]
     )
-    def create_dynamic_shade_octrees(
+    def create_shade_trans_octrees(
         self, model=create_rad_folder._outputs.model_folder,
         sunpath=generate_sunpath._outputs.sunpath
     ):
-        """Create a set of octrees for each dynamic window construction."""
+        """Create a set of octrees for each dynamic shade."""
         return [
             {
                 'from': CreateOctreeShadeTransmittance()._outputs.scene_folder,
@@ -501,20 +501,20 @@ class PmvComfortMapEntryPoint(DAG):
         needs=[
             create_sky_dome, generate_sunpath, parse_sun_up_hours,
             create_total_sky, create_direct_sky,
-            split_grid_folder, create_dynamic_shade_octrees
+            split_grid_folder, create_shade_trans_octrees, run_radiance_simulation
         ],
-        loop=create_dynamic_shade_octrees._outputs.scene_info,
+        loop=create_shade_trans_octrees._outputs.scene_info,
         sub_folder='radiance',
         sub_paths={
             'octree_file': '{{item.default}}',
             'octree_file_with_suns': '{{item.sun}}'
         }
     )
-    def run_radiance_dynamic_shade_contribution(
+    def run_radiance_shade_contribution(
         self,
         radiance_parameters=radiance_parameters,
-        octree_file=create_dynamic_shade_octrees._outputs.scene_folder,
-        octree_file_with_suns=create_dynamic_shade_octrees._outputs.scene_folder,
+        octree_file=create_shade_trans_octrees._outputs.scene_folder,
+        octree_file_with_suns=create_shade_trans_octrees._outputs.scene_folder,
         group_name='{{item.identifier}}',
         sensor_grid_folder='radiance/shortwave/grids',
         sensor_grids=split_grid_folder._outputs.sensor_grids_file,
@@ -531,7 +531,8 @@ class PmvComfortMapEntryPoint(DAG):
         needs=[
             create_sky_dome, generate_sunpath, parse_sun_up_hours,
             create_total_sky, create_direct_sky,
-            split_grid_folder, create_dynamic_octrees, run_energy_simulation
+            split_grid_folder, create_dynamic_octrees,
+            run_energy_simulation, run_radiance_simulation
         ],
         loop=create_dynamic_octrees._outputs.scene_info,
         sub_folder='radiance',
@@ -539,7 +540,7 @@ class PmvComfortMapEntryPoint(DAG):
             'octree_file_spec': '{{item.identifier}}/{{item.spec}}',
             'octree_file_diff': '{{item.identifier}}/{{item.diff}}',
             'octree_file_with_suns': '{{item.identifier}}/{{item.sun}}'
-        }, 
+        },
     )
     def run_radiance_dynamic_contribution(
         self,
@@ -565,7 +566,7 @@ class PmvComfortMapEntryPoint(DAG):
             parse_sun_up_hours, create_view_factor_modifiers,
             create_model_occ_schedules, create_model_trans_schedules,
             run_energy_simulation, run_radiance_simulation, split_grid_folder,
-            run_radiance_dynamic_contribution, run_radiance_dynamic_shade_contribution
+            run_radiance_dynamic_contribution, run_radiance_shade_contribution
         ],
         loop=split_grid_folder._outputs.sensor_grids,
         sub_folder='initial_results',
