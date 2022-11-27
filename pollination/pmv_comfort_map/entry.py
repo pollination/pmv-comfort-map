@@ -21,6 +21,7 @@ from pollination.honeybee_radiance.viewfactor import ViewFactorModifiers
 
 from pollination.ladybug_comfort.map import MapResultInfo
 from pollination.path.copy import CopyMultiple, Copy
+from pollination.honeybee_display.translate import ModelToVis
 
 # input/output alias
 from pollination.alias.inputs.model import hbjson_model_grid_room_input
@@ -712,7 +713,27 @@ class PmvComfortMapEntryPoint(DAG):
             }
         ]
 
+    @task(
+        template=ModelToVis,
+        needs=[restructure_tcp_results, restructure_hsp_results,
+               restructure_csp_results, create_result_info]
+    )
+    def create_vtkjs(
+        self, model=model, grid_data='metrics', output_format='vtkjs'
+    ):
+        return [
+            {
+                'from': ModelToVis()._outputs.output_file,
+                'to': 'visualization/comfort.vtkjs'
+            }
+        ]
+
     # outputs
+    visualization = Outputs.file(
+        source='visualization/comfort.vtkjs',
+        description='Thermal comfort result visualization in 3D vtkjs format.'
+    )
+
     environmental_conditions = Outputs.folder(
         source='initial_results/conditions',
         description='A folder containing the environmental conditions that were input '
