@@ -728,8 +728,28 @@ class PmvComfortMapEntryPoint(DAG):
             }
         ]
 
+    @task(
+        template=ModelToVis,
+        needs=[restructure_tcp_results, restructure_hsp_results,
+               restructure_csp_results, create_result_info]
+    )
+    def create_vsf(
+        self, model=model, grid_data='metrics', output_format='vsf'
+    ):
+        return [
+            {
+                'from': ModelToVis()._outputs.output_file,
+                'to': 'visualization/comfort.vsf'
+            }
+        ]
+
     # outputs
     visualization = Outputs.file(
+        source='visualization/comfort.vsf',
+        description='Thermal comfort result visualization in VisualizationSet format.'
+    )
+
+    visualization_vtkjs = Outputs.file(
         source='visualization/comfort.vtkjs',
         description='Thermal comfort result visualization in 3D vtkjs format.'
     )
