@@ -716,8 +716,9 @@ class PmvComfortMapEntryPoint(DAG):
     environmental_conditions = Outputs.folder(
         source='initial_results/conditions',
         description='A folder containing the environmental conditions that were input '
-        'to the thermal comfort model. This include the MRT, air temperature, longwave '
-        'MRT, shortwave MRT delta and relative humidity.', alias=env_conditions_output
+        'to the thermal comfort model. This includes the MRT (C), air temperature (C), '
+        'longwave MRT (C), shortwave MRT delta (dC) and relative humidity (%).',
+        alias=env_conditions_output
     )
 
     temperature = Outputs.folder(
