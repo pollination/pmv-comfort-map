@@ -719,7 +719,8 @@ class PmvComfortMapEntryPoint(DAG):
                restructure_csp_results, create_result_info]
     )
     def create_vsf(
-        self, model=model, grid_data='metrics', output_format='vsf'
+        self, model=model, grid_data='metrics', active_grid_data='tcp',
+        output_format='vsf'
     ):
         return [
             {
