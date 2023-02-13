@@ -36,4 +36,4 @@ calculation.
 
 To determine Thermal Comfort Percent (TCP), the occupancy schedules of the energy
 model are used. Any hour of the occupancy schedule that is 0.1 or greater will be
-considered occupied. All hours of the outdoors are considered occupied.
+considered occupied. For outdoor sensors, all hours are considered occupied.
