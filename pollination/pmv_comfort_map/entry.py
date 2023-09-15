@@ -599,7 +599,7 @@ class PmvComfortMapEntryPoint(DAG):
         met_rate=met_rate,
         clo_value=clo_value,
         solarcal_par=solarcal_parameters,
-        comfort_par=comfort_parameters,
+        comfort_parameters=comfort_parameters,
         write_set_map=write_set_map
     ) -> List[Dict]:
         pass
