@@ -1,4 +1,4 @@
-from pollination_dsl.dag import Inputs, DAG, task
+from pollination_dsl.dag import Inputs, GroupedDAG, task, Outputs
 from dataclasses import dataclass
 from typing import Dict, List
 
@@ -8,7 +8,7 @@ from pollination.ladybug_comfort.mtx import PmvMtx
 
 
 @dataclass
-class ComfortMappingEntryPoint(DAG):
+class ComfortMappingEntryPoint(GroupedDAG):
     """Entry point for Comfort calculations."""
 
     # inputs
@@ -141,7 +141,8 @@ class ComfortMappingEntryPoint(DAG):
         enclosure_info=enclosure_info,
         epw=epw,
         run_period=run_period,
-        name=grid_name
+        name=grid_name,
+        output_format='binary'
     ) -> List[Dict]:
         return [
             {
@@ -163,7 +164,8 @@ class ComfortMappingEntryPoint(DAG):
         trans_schedules=trans_schedules,
         solarcal_par=solarcal_parameters,
         run_period=run_period,
-        name=grid_name
+        name=grid_name,
+        output_format='binary'
     ) -> List[Dict]:
         return [
             {
@@ -180,7 +182,8 @@ class ComfortMappingEntryPoint(DAG):
         epw=epw,
         run_period=run_period,
         metric='air-temperature',
-        name=grid_name
+        name=grid_name,
+        output_format='binary'
     ) -> List[Dict]:
         return [
             {
@@ -197,7 +200,8 @@ class ComfortMappingEntryPoint(DAG):
         epw=epw,
         run_period=run_period,
         metric='relative-humidity',
-        name=grid_name
+        name=grid_name,
+        output_format='binary'
     ) -> List[Dict]:
         return [
             {
@@ -236,6 +240,7 @@ class ComfortMappingEntryPoint(DAG):
         clo_value=clo_value,
         comfort_par=comfort_parameters,
         write_set_map=write_set_map,
+        output_format='binary',
         name=grid_name
     ) -> List[Dict]:
         return [
@@ -269,3 +274,9 @@ class ComfortMappingEntryPoint(DAG):
             {'from': Tcp()._outputs.hsp, 'to': 'metrics/HSP/{{self.name}}.csv'},
             {'from': Tcp()._outputs.csp, 'to': 'metrics/CSP/{{self.name}}.csv'}
         ]
+
+    results_folder = Outputs.folder(source='results')
+
+    conditions = Outputs.folder(source='conditions')
+
+    metrics = Outputs.folder(source='metrics')
