@@ -96,4 +96,9 @@ class DynamicContributionEntryPoint(DAG):
         result_sql=result_sql,
         sun_up_hours=sun_up_hours
     ) -> List[Dict]:
-        pass
+        return [
+            {
+                'from': RadianceContribEntryPoint()._outputs.dynamic_results,
+                'to': 'radiance/shortwave/dynamic/final'
+            }
+        ]

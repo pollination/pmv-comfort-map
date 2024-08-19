@@ -249,6 +249,7 @@ class RadianceContribEntryPoint(GroupedDAG):
         ref_diffuse=ground_reflected_sky_diff_group._outputs.result_file,
         sun_up_hours=sun_up_hours,
         aperture_id=group_name,
+        output_format='binary',
         grid=grid_name
     ) -> List[Dict]:
         return [
