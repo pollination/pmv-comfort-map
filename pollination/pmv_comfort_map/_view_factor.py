@@ -33,26 +33,6 @@ class SphericalViewFactorEntryPoint(DAG):
         extensions=['pts']
     )
 
-    sensor_count = Inputs.int(
-        description='Number of sensors in the input sensor grid.'
-    )
-
-    sky_dome = Inputs.file(
-        description='Path to sky dome file.'
-    )
-
-    sky_matrix = Inputs.file(
-        description='Path to total sky matrix file.'
-    )
-
-    sky_matrix_direct = Inputs.file(
-        description='Path to direct skymtx file (gendaymtx -d).'
-    )
-
-    sun_modifiers = Inputs.file(
-        description='A file with sun modifiers.'
-    )
-
     view_factor_modifiers = Inputs.file(
         description='A file with surface modifiers.'
     )

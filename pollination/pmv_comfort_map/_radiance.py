@@ -9,7 +9,7 @@ from pollination.honeybee_radiance.sky import SubtractSkyMatrix
 
 @dataclass
 class RadianceMappingEntryPoint(GroupedDAG):
-    """Entry point for Radiance calculations for comfort mapping."""
+    """Entry point for Radiance calculations for pmv-comfort-map."""
 
     # inputs
     radiance_parameters = Inputs.str(

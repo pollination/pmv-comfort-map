@@ -205,10 +205,6 @@ class PmvComfortMapEntryPoint(DAG):
         sub_paths={
             'octree_file_view_factor': 'scene.oct',
             'sensor_grid': '{{item.full_id}}.pts',
-            'sky_dome': 'sky.dome',
-            'sky_matrix': 'sky.mtx',
-            'sky_matrix_direct': 'sky_direct.mtx',
-            'sun_modifiers': 'suns.mod',
             'view_factor_modifiers': 'scene.mod'
         }
     )
@@ -218,11 +214,6 @@ class PmvComfortMapEntryPoint(DAG):
         octree_file_view_factor=prepare_folder._outputs.longwave_resources,
         grid_name='{{item.full_id}}',
         sensor_grid=prepare_folder._outputs.sensor_grids_folder,
-        sensor_count='{{item.count}}',
-        sky_dome=prepare_folder._outputs.shortwave_resources,
-        sky_matrix=prepare_folder._outputs.shortwave_resources,
-        sky_matrix_direct=prepare_folder._outputs.shortwave_resources,
-        sun_modifiers=prepare_folder._outputs.shortwave_resources,
         view_factor_modifiers=prepare_folder._outputs.longwave_resources
     ) -> List[Dict]:
         pass
@@ -254,7 +245,7 @@ class PmvComfortMapEntryPoint(DAG):
         sky_dome=prepare_folder._outputs.shortwave_resources,
         sky_matrix=prepare_folder._outputs.shortwave_resources,
         sky_matrix_direct=prepare_folder._outputs.shortwave_resources,
-        sun_modifiers=prepare_folder._outputs.shortwave_resources,
+        sun_modifiers=prepare_folder._outputs.shortwave_resources
     ) -> List[Dict]:
         return [
             {
@@ -298,7 +289,7 @@ class PmvComfortMapEntryPoint(DAG):
         sky_matrix=prepare_folder._outputs.shortwave_resources,
         sky_matrix_direct=prepare_folder._outputs.shortwave_resources,
         sun_modifiers=prepare_folder._outputs.shortwave_resources,
-        sun_up_hours=prepare_folder._outputs.shortwave_resources,
+        sun_up_hours=prepare_folder._outputs.shortwave_resources
     ) -> List[Dict]:
         pass
 
@@ -333,7 +324,7 @@ class PmvComfortMapEntryPoint(DAG):
         sky_matrix=prepare_folder._outputs.shortwave_resources,
         sky_matrix_direct=prepare_folder._outputs.shortwave_resources,
         sun_modifiers=prepare_folder._outputs.shortwave_resources,
-        sun_up_hours=prepare_folder._outputs.shortwave_resources,
+        sun_up_hours=prepare_folder._outputs.shortwave_resources
     ) -> List[Dict]:
         pass
 
