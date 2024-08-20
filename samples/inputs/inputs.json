@@ -1,5 +1,0 @@
-{
-    "wea": "BRA_PR_Curitiba.838420_INMET.epw", 
-    "model": "sample_model_grid.hbjson",
-    "radiance-parameters": "-ab 2 -ad 512 -lw 2e-05 -dr 0"
-}
